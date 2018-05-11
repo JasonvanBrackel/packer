@@ -1,0 +1,6 @@
+{
+    "iso_url": "file://en_windows_server_version_1709_updated_jan_2018_x64_dvd_100492040.iso",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "3B93DBC1C13A223B543483F0DCB52587",
+    "autounattend": "./answer_files/server_1709/Autounattend.xml"
+}
