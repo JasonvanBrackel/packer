@@ -138,6 +138,6 @@ aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-doc
 
 ### Option 2 Create a Hyper-V image with Packer's hyperv-iso and have it out an image in vmcx format
 
-## Upload the OVA or VMCX image to the s3 bucket with the ```aws s3 cp``` command
+## Upload the OVA or VMCX image to the s3 bucket with the ```aws s3 cp ./output-hyperv-iso s3://windows-1709/windows-1709-hyperv-vm``` command
 
 ## Register the OVA or VMCX image as an AMI using ```aws ec2 describe-import-image-task```
