@@ -1,0 +1,9 @@
+[
+  {
+    "Description": "Windows 2016 Build 1709",
+    "Format": "vhdx",
+    "UserBucket": {
+        "S3Bucket": "windows-1709",
+        "S3Key": "windows-1709-hyperv-vm.vhdx"
+    }
+}]
