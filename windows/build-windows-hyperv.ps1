@@ -3,7 +3,7 @@ $imageName = "Windows-2016-1709-With-Containers"
 $vmS3Path = "s3://windows-1709/windows-1709-hyperv-vm.vhdx"
 
 Write-Host "Creating Hyper-v Image"
-#packer build -force -var-file windows_server_1709_with_containers.json build-windows-1709-hyper-image.json
+packer build -force -var-file windows_server_1709_with_containers.json build-windows-1709-hyper-image.json
 
 Write-Host "Checking for existing AMI."
 $ami = aws ec2 describe-images --filters Name=name,Values=$imageName | ConvertFrom-Json | Select-Object -ExpandProperty Images
