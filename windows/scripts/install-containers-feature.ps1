@@ -7,3 +7,9 @@ if ((Get-WmiObject Win32_Processor).VirtualizationFirmwareEnabled[0] -and (Get-W
 } else {
   Write-Host "Skipping installation of Hyper-V feature"
 }
+
+Write-Host "Installing Docker Development Tools"
+Install-Module DockerProvider -Force
+Install-Package Docker -ProviderName DockerProvider -RequiredVersion 17.06 -Verbose -Force
+
+Restart-Computer

@@ -113,6 +113,8 @@ First this will
   * disable the screensaver
   * run any microsoft updates
   * turn off the Windows Server firewall and enable WinRM.
+  * enable RDP
+  * Install Amazon EC2Config and schedule VM initialization.
   * then sysprep the operating system
 
 The output of this part of the script will be a folder called output-hyperv-iso, which will have the Windows Virtual Machine and Virtual Hard Disks.
@@ -125,3 +127,12 @@ At this point the `build-windows-hyperv.ps1` script will
 * Register the Virtual Machine as a Windows AMI in EC2.  This also takes a while.
 
 Until the process has ended in error or completed, the `build-windows-hyperv.ps1` script will monitor the import task.
+
+## A note about security.
+
+This setup is not meant for production system.  The WinRM is currently setup to be used in an unencrypted manner.
+
+To connect via `Enter-PSSession` you must trust the remote hoste and allow unencrypted connections using Basic Auth
+
+`Set-item "WsMan:\localhost\Client\Trustedhosts" -Value '<fqdn or ip>,<fqdn or ip>' -Force`
+`Set-Item "WSMan:\localhost\Client\AllowUnencrypted" -Value true`
