@@ -20,20 +20,19 @@
             "enable_virtualization_extensions": true,
             "floppy_files": [
                 "{{user `autounattend`}}",
-                "./answer_files/unattend.xml",
                 "./scripts/disable-screensaver.ps1",
                 "./scripts/disable-winrm.ps1",
                 "./scripts/enable-winrm.ps1",
                 "./scripts/microsoft-updates.bat",
                 "./scripts/disable-softfirewall.ps1",
-                "./scripts/sysprep.bat"
+                "./scripts/install-EC2Launch.ps1"
             ],
             "guest_additions_mode": "disable",
             "iso_checksum": "{{user `iso_checksum`}}",
             "iso_checksum_type": "{{user `iso_checksum_type`}}",
             "iso_url": "{{user `iso_url`}}",
             "ram_size": 4096,
-            "shutdown_command": "A:\\sysprep.bat",
+            "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
             "vm_name": "WindowsServer1709",
             "winrm_password": "Packer",
             "winrm_timeout": "{{user `winrm_timeout`}}",
