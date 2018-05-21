@@ -23,5 +23,3 @@ foreach($file in Get-ChildItem -Path $destinationFolder) {
 
 # Install
 ./install.ps1
-
-C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule

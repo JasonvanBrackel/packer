@@ -25,8 +25,10 @@
                 "./scripts/enable-winrm.ps1",
                 "./scripts/microsoft-updates.bat",
                 "./scripts/disable-softfirewall.ps1",
+                "./scripts/install-containers-feature.ps1",
                 "./scripts/install-EC2Launch.ps1",
-                "./scripts/enable-rdp.bat"
+                "./scripts/enable-rdp.bat",
+                "./scripts/windows-updates.ps1"
             ],
             "guest_additions_mode": "disable",
             "iso_checksum": "{{user `iso_checksum`}}",

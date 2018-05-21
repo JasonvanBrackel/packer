@@ -5,7 +5,7 @@ function Get-RunningMessage($startDate) {
     $minutes = $difference.Minutes
     $seconds = $difference.Seconds
     $message = "Process has been running for "
-    if ($hours -gt 1) {
+    if ($hours -gt 0) {
         $message = $message + "$hours hours, "
     }
     $message = $message + "$minutes minutes, $seconds seconds."
@@ -15,6 +15,15 @@ function Get-RunningMessage($startDate) {
 $ErrorActionPreference = "Stop"
 $imageName = "Windows-2016-1709-With-Containers"
 $vmS3Path = "s3://windows-1709/windows-1709-hyperv-vm.vhdx"
+$keyName = "jvb"
+$instanceType = "t2.medium"
+$regions = "us-east-1", "us-east-2", "us-west-1", "us-west-2"
+$sourceRegion = aws configure get region
+$username = "Packer"
+$password = "Packer" | ConvertTo-SecureString -asPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($username,$password)
+
+$ErrorActionPreference
 
 $startDate = Get-Date
 Write-Host "Starting AMI Creation Process at $startDate."
@@ -29,13 +38,6 @@ $ami = aws ec2 describe-images --filters "Name=name,Values=$imageName" | Convert
 
 Write-Host "Checking for existing Hyper-V Virtual Machine on S3 at $vmS3Path."
 $hdxCount = (aws s3 ls $vmS3Path --output json | Measure-Object ).Count
-
-if ($ami -ne $null) {
-    aws ec2 deregister-image --image-id $ami.ImageId
-}
-else {
-    "No AMI found with name $imageName."
-}
 
 if ($hdxCount -ne 0) {
     aws s3 rm $vmS3Path
@@ -73,11 +75,71 @@ while ($task.Status -eq "active") {
 
 Write-Progress -Activity "AMI Processing Finished." -Completed
 
-Write-Host "Import is done.  AMI has either ended in error or is ready for testing."
+Write-Host "$(Get-RunningMessage $startDate)."
+
+"Image Id: $($task.ImageId)."
+
+$imageId = $($task.ImageId)
+
+Write-Host "Creating an Instance from the AMI image."
+
+$instances = aws ec2 run-instances --image-id $task.ImageId --key-name $keyName --instance-type $instanceType --security-groups all-open | ConvertFrom-Json
+
+Write-Host "Waiting 5 minutes for DNS and Public IPs"
+
+Start-Sleep -Seconds 300
+
+Write-Host "$(Get-RunningMessage $startDate)."
+
+Write-Host "Adding instance to trusted hosts"
+
+$instanceIds = ""
+foreach($instance in $instances.Instances) {
+        $instanceIds += ($instance.InstanceId + ",")
+}
+
+$instanceIds = $instanceIds.Substring(0, $instanceIds.Length - 1)
+
+$instance = (aws ec2 describe-instances --instance-ids $instanceIds | ConvertFrom-Json).Reservations[0].Instances
+
+aws ec2 create-tags --resources $instance.InstanceId --tags Key=name,Value=1709-test
+
+Set-Item "WSMan:\localhost\Client\TrustedHosts" -Value "$($instance.PublicDnsName)" -Force
+
+Write-Host "Allowing Unencrypted WinRM Connections"
+
+Set-Item "WSMan:\localhost\Client\AllowUnencrypted" -Value "true" -Force
+
+Write-Host "$(Get-RunningMessage $startDate)."
+
+Write-Host "Schedule initialization and run sysprep"
+
+Enter-PSSession -ComputerName $instance.PublicDnsName -Credential $credential
+
+C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 -Schedule; C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1 -ErrorAction Continue
+
+Exit-PSSession -ErrorAction Continue
+
+Write-Host "$(Get-RunningMessage $startDate)."
+
+Write-Host "Creating Image from Sysprepped machine."
+
+$imageId = aws ec2 create-image --instance-id $instance.InstanceId --name "Windows Server 2016 1709 With Containers" --no-reboot
+
+Write-Host "Propogate Image to other regions."
+
+foreach($region in $regions) {
+    if($region -eq $sourceRegion) {
+        Write-Host "Skipping source region $sourceRegion."
+    } else {
+        Write-Host "Copying image to $region."
+        aws ec2 copy-image --source-region $sourceRegion  source-image-id  $imageId  --name "Windows Server 2016 1709 With Containers"     
+    }
+}
+
+Write-Host "Done."
 
 $endDate = Get-Date
 $difference = $endDate - $startDate
 
 Write-Host "AMI Process Complete. $($difference.Hours) hours, $($difference.Minutes) minutes, and $($difference.Seconds) seconds."
-
-"Image Id: $($task.ImageId)."
