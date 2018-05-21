@@ -2,6 +2,10 @@
 
 The contents of this folder is to build Windows Server 2016 Hyper-v Virtual Machines and use them to build Windows AMIs for Amazon EC2.
 
+## Warning
+
+This repository is a work in process.  The parts after the registration of the AMI are broken and I'll be fixing them soon.  Use at your own risk.
+
 ## Prerequisites
 
 * Windows Operating System with Hyper-V enabled.
