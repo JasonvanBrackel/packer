@@ -8,9 +8,9 @@ This repository is a work in process.  The parts after the registration of the A
 
 ### TODO
 
--[] Remotely execute sysprep and EC2Launch initialization.
--[] Cleanup non-sysprepped AMIs
--[] Lock down and properly secure instances for production.
+- [ ] Remotely execute sysprep and EC2Launch initialization.
+- [ ] Cleanup non-sysprepped AMIs
+- [ ] Lock down and properly secure instances for production.
 
 ## Prerequisites
 
